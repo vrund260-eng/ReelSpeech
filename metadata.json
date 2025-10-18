@@ -1,0 +1,8 @@
+{
+  "name": "ReelTalk",
+  "description": "An immersive, vertically-scrolling video feed application combined with a real-time chat feature, inspired by popular social media platforms. Discover endless content and connect with friends.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
