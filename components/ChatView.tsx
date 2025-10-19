@@ -1,62 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Conversation, ChatMessage, User } from '../types';
 import Icon from './Icon';
 import FindFriends from './FindFriends';
 
-// Note: In a real app, this data and the allUsers list would come from App.tsx props.
-// For simplicity in this component, we redefine it.
-const allUsers: User[] = [
-  { username: 'naturelover', displayName: 'Nature Lover', avatar: 'https://picsum.photos/id/1027/100/100', email: 'nature@example.com', phone: '+11111111111', password: 'password123' },
-  { username: 'bunnyfan', displayName: 'Bunny Fan', avatar: 'https://picsum.photos/id/237/100/100', email: 'bunny@example.com', phone: '+12222222222', password: 'password123' },
-  { username: 'dreamscapes', displayName: 'Dream Scapes', avatar: 'https://picsum.photos/id/1015/100/100', email: 'dreams@example.com', phone: '+13333333333', password: 'password123' },
-  { username: 'techguru', displayName: 'Tech Guru', avatar: 'https://picsum.photos/id/1074/100/100', email: 'guru@example.com', phone: '+14444444444', password: 'password123' },
-  { username: 'citylights', displayName: 'City Lights', avatar: 'https://picsum.photos/id/1084/100/100', email: 'city@example.com', phone: '+15555555555', password: 'password123' },
-  { username: 'foodie', displayName: 'Foodie', avatar: 'https://picsum.photos/id/1080/100/100', email: 'food@example.com', phone: '+16666666666', password: 'password123' },
-];
-
-const mockConversations: Conversation[] = [
-  {
-    id: 1,
-    user: allUsers[0],
-    lastMessage: "Can't wait for our hike this weekend!",
-    lastMessageTime: '10:42 AM',
-    messages: [
-      { id: 1, sender: 'them', text: "Hey! Loved your latest video!", timestamp: "10:40 AM" },
-      { id: 2, sender: 'me', text: "Thanks so much! Glad you enjoyed it.", timestamp: "10:41 AM" },
-      { id: 3, sender: 'them', text: "Can't wait for our hike this weekend!", timestamp: "10:42 AM" },
-    ],
-  },
-  {
-    id: 2,
-    user: allUsers[1],
-    lastMessage: 'Haha, that was hilarious!',
-    lastMessageTime: 'Yesterday',
-    messages: [
-       { id: 1, sender: 'me', text: "Did you see that new bunny cartoon?", timestamp: "Yesterday" },
-       { id: 2, sender: 'them', text: "Haha, that was hilarious!", timestamp: "Yesterday" },
-    ]
-  },
-  {
-    id: 3,
-    user: allUsers[2],
-    lastMessage: 'Let me know what you think of this idea...',
-    lastMessageTime: '2 days ago',
-     messages: [
-       { id: 1, sender: 'them', text: "Let me know what you think of this idea...", timestamp: "2 days ago" },
-    ]
-  },
-];
-
 interface ChatViewProps {
     currentUser: User;
     allUsers: User[];
+    conversations: Conversation[];
+    setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>;
 }
 
-const ChatView: React.FC<ChatViewProps> = ({ currentUser, allUsers }) => {
-  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(conversations.length > 0 ? conversations[0] : null);
+const ChatView: React.FC<ChatViewProps> = ({ currentUser, allUsers, conversations, setConversations }) => {
+  const [selectedConvoId, setSelectedConvoId] = useState<number | null>(conversations[0]?.id ?? null);
   const [newMessage, setNewMessage] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'findFriends'>('list');
+
+  const selectedConversation = useMemo(
+    () => conversations.find(c => c.id === selectedConvoId),
+    [conversations, selectedConvoId]
+  );
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,17 +38,18 @@ const ChatView: React.FC<ChatViewProps> = ({ currentUser, allUsers }) => {
         lastMessageTime: message.timestamp,
     };
     
-    setSelectedConversation(updatedConversation);
     // Move the updated conversation to the top of the list
-    const otherConversations = conversations.filter(c => c.id !== updatedConversation.id);
-    setConversations([updatedConversation, ...otherConversations]);
+    setConversations(prev => [
+        updatedConversation,
+        ...prev.filter(c => c.id !== updatedConversation.id)
+    ]);
     setNewMessage('');
   };
   
   const handleAddFriend = (friend: User) => {
     const existingConvo = conversations.find(c => c.user.username === friend.username);
     if (existingConvo) {
-      setSelectedConversation(existingConvo);
+      setSelectedConvoId(existingConvo.id);
     } else {
       const newConversation: Conversation = {
         id: Date.now(),
@@ -95,9 +58,8 @@ const ChatView: React.FC<ChatViewProps> = ({ currentUser, allUsers }) => {
         lastMessage: `You are now connected with ${friend.displayName}.`,
         lastMessageTime: 'Now',
       };
-      const newConversations = [newConversation, ...conversations];
-      setConversations(newConversations);
-      setSelectedConversation(newConversation);
+      setConversations(prev => [newConversation, ...prev]);
+      setSelectedConvoId(newConversation.id);
     }
     setViewMode('list');
   };
@@ -129,7 +91,7 @@ const ChatView: React.FC<ChatViewProps> = ({ currentUser, allUsers }) => {
             <div
               key={convo.id}
               className={`flex items-center p-3 cursor-pointer hover:bg-gray-800 ${selectedConversation?.id === convo.id ? 'bg-gray-700' : ''}`}
-              onClick={() => setSelectedConversation(convo)}
+              onClick={() => setSelectedConvoId(convo.id)}
             >
               <img src={convo.user.avatar} alt={convo.user.displayName} className="h-12 w-12 rounded-full mr-4" />
               <div className="flex-1 overflow-hidden">

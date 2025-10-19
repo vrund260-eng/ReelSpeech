@@ -4,7 +4,10 @@ export interface User {
   avatar: string;
   email?: string;
   phone?: string;
-  password?: string;
+  passwordHash?: string;
+  followers: number;
+  following: number;
+  followingUsernames: string[];
 }
 
 export interface Video {
@@ -16,6 +19,8 @@ export interface Video {
   likes: number;
   comments: number;
   shares: number;
+  views: number;
+  isLocal?: boolean;
 }
 
 export interface ChatMessage {

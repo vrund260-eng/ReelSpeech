@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Video } from '../types';
+import { Video, User } from '../types';
 import Sidebar from './Sidebar';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
 import Icon from './Icon';
@@ -9,9 +9,11 @@ interface VideoPlayerProps {
   isActive: boolean;
   setActiveVideoId: (id: number) => void;
   onVideoUpdate: (video: Video) => void;
+  currentUser: User;
+  onFollow: (userToFollow: User) => void;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, isActive, setActiveVideoId, onVideoUpdate }) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, isActive, setActiveVideoId, onVideoUpdate, currentUser, onFollow }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -37,12 +39,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, isActive, setActiveVid
       if (playPromise !== undefined) {
         playPromise.then(() => {
           setIsPlaying(true);
+           onVideoUpdate({ ...video, views: (video.views || 0) + 1 });
         }).catch(error => {
           console.warn("Autoplay was prevented. Muting video to play.", error);
           videoElement.muted = true;
           setIsMuted(true);
           videoElement.play().then(() => {
             setIsPlaying(true);
+            onVideoUpdate({ ...video, views: (video.views || 0) + 1 });
           }).catch(finalError => {
             console.error("Failed to play video even after muting.", finalError);
             setIsPlaying(false);
@@ -59,6 +63,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, isActive, setActiveVid
         videoElement.pause();
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
 
 
@@ -121,6 +126,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, isActive, setActiveVid
     }
   };
 
+  const isFollowing = currentUser.followingUsernames.includes(video.user.username);
+  const isSelf = currentUser.username === video.user.username;
 
   return (
     <div ref={containerRef} className="relative h-screen w-full snap-start flex items-center justify-center bg-black">
@@ -151,7 +158,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, isActive, setActiveVid
                 <div className="flex items-center gap-2 mb-2">
                     <img src={video.user.avatar} alt={video.user.username} className="h-10 w-10 rounded-full border-2 border-white"/>
                     <h3 className="font-bold text-lg">{video.user.displayName}</h3>
-                    <button className="text-pink-500 font-semibold border-2 border-pink-500 px-3 py-1 text-sm rounded-md hover:bg-pink-500 hover:text-white transition-colors">Follow</button>
+                    {!isSelf && !isFollowing && (
+                      <button 
+                        onClick={() => onFollow(video.user)}
+                        className="text-pink-500 font-semibold border-2 border-pink-500 px-3 py-1 text-sm rounded-md hover:bg-pink-500 hover:text-white transition-colors">
+                        Follow
+                      </button>
+                    )}
                 </div>
                 <p className="text-base mb-2">{video.caption}</p>
                 <div className="flex items-center gap-2">
