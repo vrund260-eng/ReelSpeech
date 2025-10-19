@@ -18,7 +18,8 @@ type IconType =
   | 'sparkles'
   | 'upload'
   | 'play'
-  | 'music';
+  | 'music'
+  | 'discover';
 
 interface IconProps {
   type: IconType;
@@ -100,7 +101,7 @@ const ICONS: Record<IconType, React.ReactElement<React.SVGProps<SVGSVGElement>>>
   ),
   sparkles: (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M10 2.5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5a.75.75 0 01.75-.75zM5.31 5.31a.75.75 0 011.06 0l2.475 2.475a.75.75 0 11-1.06 1.06L5.31 6.37a.75.75 0 010-1.06zM2.5 10a.75.75 0 01.75-.75h3.5a.75.75 0 010 1.5h-3.5a.75.75 0 01-.75-.75zM5.31 14.69a.75.75 0 010-1.06l2.475-2.475a.75.75 0 111.06 1.06L6.37 14.69a.75.75 0 01-1.06 0zM10 17.5a.75.75 0 01-.75-.75v-3.5a.75.75 0 011.5 0v3.5a.75.75 0 01-.75.75zm4.69-2.81a.75.75 0 01-1.06 0l-2.475-2.475a.75.75 0 011.06-1.06l2.475 2.475a.75.75 0 010 1.06zM17.5 10a.75.75 0 01-.75.75h-3.5a.75.75 0 010-1.5h3.5a.75.75 0 01.75.75zm-2.81-4.69a.75.75 0 010 1.06l-2.475 2.475a.75.75 0 01-1.06-1.06L13.63 5.31a.75.75 0 011.06 0z" clipRule="evenodd" />
+      <path fillRule="evenodd" d="M10 2.5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5a.75.75 0 01.75-.75zM5.31 5.31a.75.75 0 011.06 0l2.475 2.475a.75.75 0 11-1.06 1.06L5.31 6.37a.75.75 0 010-1.06zM2.5 10a.75.75 0 01.75-.75h3.5a.75.75 0 010 1.5h-3.5a.75.75 0 01-.75-.75zM5.31 14.69a.75.75 0 010-1.06l2.475-2.475a.75.75 0 111.06 1.06L6.37 14.69a.75.75 0 01-1.06 0zM10 17.5a.75.75 0 01-.75-.75v-3.5a.75.75 0 011.5 0v3.5a.75.75 0 01-.75-.75zm4.69-2.81a.75.75 0 01-1.06 0l-2.475-2.475a.75.75 0 011.06-1.06l2.475 2.475a.75.75 0 010 1.06zM17.5 10a.75.75 0 01-.75.75h-3.5a.75.75 0 010-1.5h3.5a.75.75 0 01.75.75zm-2.81-4.69a.75.75 0 010 1.06l-2.475 2.475a.75.75 0 01-1.06-1.06L13.63 5.31a.75.75 0 011.06 0z" clipRule="evenodd" />
     </svg>
   ),
   upload: (
@@ -116,6 +117,12 @@ const ICONS: Record<IconType, React.ReactElement<React.SVGProps<SVGSVGElement>>>
   music: (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
       <path d="M10.75 3.5a.75.75 0 00-1.5 0v5.39l-1.84-1.23a.75.75 0 00-.92 1.62l2.5 1.67a.75.75 0 00.92 0l2.5-1.67a.75.75 0 10-.92-1.62l-1.84 1.23V3.5zM4.75 14.25a.75.75 0 000 1.5h10.5a.75.75 0 000-1.5H4.75z" />
+    </svg>
+  ),
+  discover: (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 9l-3 6-3-6 3-6 3 6z" />
     </svg>
   ),
 };

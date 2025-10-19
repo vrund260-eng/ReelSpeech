@@ -1,3 +1,5 @@
+import { Type } from '@google/genai';
+
 export interface User {
   username: string;
   displayName: string;
@@ -37,3 +39,6 @@ export interface Conversation {
   lastMessageTime: string;
   messages: ChatMessage[];
 }
+
+// Keep this export for other potential schema definitions
+export { Type };

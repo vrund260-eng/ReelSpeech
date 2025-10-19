@@ -8,6 +8,7 @@ import ProfileView from './components/ProfileView';
 import { Video, User, Conversation } from './types';
 import { hashPassword } from './services/cryptoService';
 import { videoDB } from './services/videoDB';
+import { getForYouFeed } from './services/geminiService';
 
 type View = 'home' | 'create' | 'chat' | 'profile';
 
@@ -109,6 +110,9 @@ const App: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [forYouVideos, setForYouVideos] = useState<Video[] | null>(null);
+  const [isGeneratingForYou, setIsGeneratingForYou] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
@@ -264,6 +268,7 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setCurrentUser(null);
     setCurrentView('home');
+    setForYouVideos(null);
   };
 
   const handlePostVideo = async (newVideoData: { file: File, caption: string, audioName: string }) => {
@@ -331,6 +336,22 @@ const App: React.FC = () => {
     }
   };
 
+  const handleGenerateForYouFeed = async () => {
+    if (!currentUser) return;
+    setIsGeneratingForYou(true);
+    setGenerationError(null);
+    try {
+        const recommendedIds = await getForYouFeed(currentUser, videos);
+        const recommendedVideos = videos.filter(v => recommendedIds.includes(v.id));
+        setForYouVideos(recommendedVideos);
+    } catch(err: any) {
+        setGenerationError(err.message || "Failed to generate feed.");
+        setForYouVideos([]); // Set to empty array on error
+    } finally {
+        setIsGeneratingForYou(false);
+    }
+  };
+
 
   if (!isInitialized) {
     return <div className="h-screen w-screen bg-gray-900 flex items-center justify-center text-white"><p>Loading...</p></div>;
@@ -343,7 +364,16 @@ const App: React.FC = () => {
   const renderView = () => {
     switch (currentView) {
       case 'home':
-        return <VideoFeed videos={videos} onVideoUpdate={handleVideoUpdate} currentUser={currentUser} onFollowUser={handleFollowUser} />;
+        return <VideoFeed 
+                    videos={videos} 
+                    onVideoUpdate={handleVideoUpdate} 
+                    currentUser={currentUser} 
+                    onFollowUser={handleFollowUser}
+                    forYouVideos={forYouVideos}
+                    isGeneratingForYou={isGeneratingForYou}
+                    onGenerateForYouFeed={handleGenerateForYouFeed}
+                    generationError={generationError}
+                />;
       case 'create':
         return <CreateView onPostVideo={handlePostVideo} />;
       case 'chat':
@@ -351,7 +381,16 @@ const App: React.FC = () => {
       case 'profile':
         return <ProfileView user={currentUser} onLogout={handleLogout} videos={videos} conversations={conversations} />;
       default:
-        return <VideoFeed videos={videos} onVideoUpdate={handleVideoUpdate} currentUser={currentUser} onFollowUser={handleFollowUser} />;
+        return <VideoFeed 
+                    videos={videos} 
+                    onVideoUpdate={handleVideoUpdate} 
+                    currentUser={currentUser} 
+                    onFollowUser={handleFollowUser}
+                    forYouVideos={forYouVideos}
+                    isGeneratingForYou={isGeneratingForYou}
+                    onGenerateForYouFeed={handleGenerateForYouFeed}
+                    generationError={generationError}
+                />;
     }
   };
 
